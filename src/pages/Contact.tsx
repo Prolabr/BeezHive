@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Mail, Phone, MapPin, MessageSquare, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,37 +6,67 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import HoneycombPattern from "@/components/HoneycombPattern";
 import { useToast } from "@/hooks/use-toast";
+import emailjs from "emailjs-com";
 
 const Contact = () => {
   const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    tel: "",
+    company: "",
+    service: "Social Media Marketing",
+    message: "",
+  });
+  const [status, setStatus] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast({
-      title: "Message Sent!",
-      description: "We'll get back to you within 24 hours.",
-    });
+
+    emailjs
+      .send(
+        "service_b8urlgc",
+        "template_rv16ttb",
+        formData,
+        "0uIh4zfvMpjj22DaL"
+      )
+      .then(
+        () => {
+          setStatus("Message sent successfully!");
+          toast({
+            title: "Message Sent!",
+            description: "We'll get back to you within 24 hours.",
+          });
+          setFormData({
+            name: "",
+            email: "",
+            tel: "",
+            company: "",
+            service: "Social Media Marketing",
+            message: "",
+          });
+        },
+        () => {
+          setStatus("Failed to send message.");
+          toast({
+            title: "Error",
+            description: "Failed to send message, please try again.",
+            variant: "destructive",
+          });
+        }
+      );
   };
 
   const contactInfo = [
-    {
-      icon: Mail,
-      title: "Email",
-      detail: "info@beezhive.lk",
-      link: "mailto:info@beezhive.lk",
-    },
-    {
-      icon: Phone,
-      title: "Phone",
-      detail: "+94 76 769 4612",
-      link: "tel:+94XXXXXXXXX",
-    },
-    {
-      icon: MapPin,
-      title: "Location",
-      detail: "Colombo, Sri Lanka",
-      link: "#",
-    },
+    { icon: Mail, title: "Email", detail: "info@beezhive.lk", link: "mailto:info@beezhive.lk" },
+    { icon: Phone, title: "Phone", detail: "+94 76 769 4612", link: "tel:+94767694612" },
+    { icon: MapPin, title: "Location", detail: "Colombo, Sri Lanka", link: "#" },
   ];
 
   return (
@@ -62,25 +93,16 @@ const Contact = () => {
             {/* Contact Info */}
             <div className="lg:col-span-1 space-y-6">
               <div>
-                <h2 className="text-3xl font-display font-bold mb-4">
-                  Get In Touch
-                </h2>
+                <h2 className="text-3xl font-display font-bold mb-4">Get In Touch</h2>
                 <p className="text-muted-foreground mb-8">
                   Have a project in mind? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
                 </p>
               </div>
 
               {contactInfo.map((info, index) => (
-                <Card
-                  key={index}
-                  className="hover-lift animate-fade-in"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
+                <Card key={index} className="hover-lift animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                   <CardContent className="p-6">
-                    <a
-                      href={info.link}
-                      className="flex items-start gap-4 group"
-                    >
+                    <a href={info.link} className="flex items-start gap-4 group">
                       <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors flex-shrink-0">
                         <info.icon className="w-6 h-6 text-primary group-hover:text-primary-foreground" />
                       </div>
@@ -93,7 +115,6 @@ const Contact = () => {
                 </Card>
               ))}
 
-              {/* WhatsApp Button */}
               <Card className="border-2 border-primary hover-lift">
                 <CardContent className="p-6">
                   <a
@@ -107,9 +128,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-bold mb-1">WhatsApp Chat</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Quick response guaranteed
-                      </p>
+                      <p className="text-sm text-muted-foreground">Quick response guaranteed</p>
                     </div>
                   </a>
                 </CardContent>
@@ -123,24 +142,26 @@ const Contact = () => {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Your Name *
-                        </label>
+                        <label className="block text-sm font-medium mb-2">Your Name *</label>
                         <Input
                           type="text"
                           placeholder="John Doe"
                           required
+                          name="name"
+                          value={formData.name}
+                          onChange={handleChange}
                           className="w-full"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Your Email *
-                        </label>
+                        <label className="block text-sm font-medium mb-2">Your Email *</label>
                         <Input
                           type="email"
                           placeholder="john@example.com"
                           required
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
                           className="w-full"
                         />
                       </div>
@@ -148,33 +169,37 @@ const Contact = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Phone Number
-                        </label>
+                        <label className="block text-sm font-medium mb-2">Phone Number</label>
                         <Input
                           type="tel"
                           placeholder="+94 XX XXX XXXX"
+                          name="tel"
+                          value={formData.tel}
+                          onChange={handleChange}
                           className="w-full"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Company Name
-                        </label>
+                        <label className="block text-sm font-medium mb-2">Company Name</label>
                         <Input
                           type="text"
                           placeholder="Your Company"
+                          name="company"
+                          value={formData.company}
+                          onChange={handleChange}
                           className="w-full"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Service Interested In
-                      </label>
+                      <label className="block text-sm font-medium mb-2">Service Interested In</label>
                       <select
-                          className="w-full px-4 py-2 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring">
+                        name="service"
+                        value={formData.service}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                      >
                         <option>Social Media Marketing</option>
                         <option>Branding & Creative</option>
                         <option>SEO Optimization</option>
@@ -188,12 +213,13 @@ const Contact = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Your Message *
-                      </label>
+                      <label className="block text-sm font-medium mb-2">Your Message *</label>
                       <Textarea
+                        name="message"
                         placeholder="Tell us about your project..."
                         required
+                        value={formData.message}
+                        onChange={handleChange}
                         className="w-full min-h-[150px]"
                       />
                     </div>
@@ -202,6 +228,7 @@ const Contact = () => {
                       Send Message <Send className="ml-2" />
                     </Button>
                   </form>
+                  {status && <p className="mt-4 text-center">{status}</p>}
                 </CardContent>
               </Card>
             </div>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeLink, setActiveLink] = useState("/");
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -20,7 +21,7 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
+
           <Link to="/" className="flex items-center gap-2 group">
             <Hexagon className="w-8 h-8 text-primary fill-primary animate-float" />
             <span className="text-2xl font-display font-bold">
@@ -28,24 +29,29 @@ const Navbar = () => {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
+
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className="text-foreground hover:text-primary font-medium transition-colors relative group"
+                onClick={() => setActiveLink(link.path)}
+                className={`font-medium transition-colors relative group ${activeLink === link.path
+                  ? "text-primary"
+                  : "text-foreground hover:text-primary"
+                  }`}
               >
                 {link.name}
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
               </Link>
             ))}
+
             <Button variant="hero" size="sm" asChild>
               <Link to="/contact">Get Started</Link>
             </Button>
           </div>
 
-          {/* Mobile Menu Button */}
+
           <button
             className="md:hidden p-2"
             onClick={() => setIsOpen(!isOpen)}
@@ -59,7 +65,6 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden py-4 animate-fade-in">
             <div className="flex flex-col gap-4">
